@@ -2,7 +2,7 @@
 
 A simple waveshaper plugin.
 
-### How to install it
+### How to install it (on Mac)
 
 1. Download the zip file.
 2. Unzip the files.
@@ -10,3 +10,7 @@ A simple waveshaper plugin.
 the .vst3 to /Library/Audio/Plug-Ins/VST3 
 and the .component to /Library/Audio/Plug-Ins/Components.
 4. Launch your favorite DAW (AU may not work on Logic Pro).
+
+### How to install it (on PC)
+
+WIP
