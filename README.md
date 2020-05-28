@@ -5,7 +5,7 @@ GUI is not finished.
 
 ### How to install it (on Mac)
 
-1. Download the zip file.
+1. Download the [zip file](https://github.com/kinaarlabs/Chaperr/blob/master/Chaperr_MacOS.zip).
 2. Unzip the files.
 3. Move the .vst to /Library/Audio/Plug-Ins/VST, 
 the .vst3 to /Library/Audio/Plug-Ins/VST3 
