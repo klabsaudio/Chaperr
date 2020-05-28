@@ -14,7 +14,7 @@ and the .component to /Library/Audio/Plug-Ins/Components.
 
 ### How to install it (on PC)
 
-1. Download the zip file.
+1. Download the [zip file](https://github.com/kinaarlabs/Chaperr/raw/master/Chaperr_Windows_x64.zip).
 2. Unzip the files.
 3. Move the .dll and the .vst3 to C:\Program Files (x86)\VSTPlugIns (or your custom plug-in folder).
 4. Launch your favorite DAW.
