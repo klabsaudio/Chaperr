@@ -2,7 +2,7 @@
 
 A Waveshaper / Wavefolder plug-in.
 
-[](https://github.com/kinaarlabs/Chaperr/raw/master/chaperr.jpg)
+![GUI](chaperr.jpg)
 
 ### How to install it (on Mac)
 
