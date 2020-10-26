@@ -1,7 +1,6 @@
 ## Chaperr
 
-A simple Waveshaper / Wavefolder plug-in.
-GUI is not finished.
+A Waveshaper / Wavefolder plug-in.
 
 ### How to install it (on Mac)
 
