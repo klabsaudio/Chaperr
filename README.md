@@ -2,6 +2,8 @@
 
 A Waveshaper / Wavefolder plug-in.
 
+[](chaperr.jpg)
+
 ### How to install it (on Mac)
 
 1. Download the [zip file](https://github.com/kinaarlabs/Chaperr/raw/master/Chaperr_MacOS.zip).
