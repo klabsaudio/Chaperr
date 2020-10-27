@@ -8,7 +8,7 @@ A Waveshaper / Wavefolder plug-in.
 
 1. Download the [zip file](https://github.com/klabsaudio/Chaperr/raw/master/Chaperr_Windows_x64.zip).
 2. Unzip the files.
-3. Move the .dll and the .vst3 to your plug-in folders. These can be :
+3. Move the .dll and the .vst3 to your plug-in folders. It can be :
 
 C:\Program Files (x86)\VSTPlugIns  
 C:\Program Files\VstPlugins  
