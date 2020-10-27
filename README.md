@@ -4,18 +4,20 @@ A Waveshaper / Wavefolder plug-in.
 
 ![GUI](chaperr.jpg)
 
-### How to install it (on Mac)
+### How to install it (on Windows)
 
-1. Download the [zip file](https://github.com/kinaarlabs/Chaperr/raw/master/Chaperr_MacOS.zip).
+1. Download the [zip file](https://github.com/klabsaudio/Chaperr/raw/master/Chaperr_Windows_x64.zip).
 2. Unzip the files.
-3. Move the .vst to /Library/Audio/Plug-Ins/VST, 
-the .vst3 to /Library/Audio/Plug-Ins/VST3 
-and the .component to /Library/Audio/Plug-Ins/Components.
-4. Launch your favorite DAW (AU may not work on Logic Pro).
+3. Move the .dll and the .vst3 to your plug-in folders. These can be :
 
-### How to install it (on PC)
+C:\Program Files (x86)\VSTPlugIns
+C:\Program Files\VstPlugins
+C:\Program Files\Common Files\VST3
+C:\Program Files (x86)\Steinberg\VstPlugins
+C:\Program Files\Steinberg\VstPlugins
 
-1. Download the [zip file](https://github.com/kinaarlabs/Chaperr/raw/master/Chaperr_Windows_x64.zip).
-2. Unzip the files.
-3. Move the .dll and the .vst3 to C:\Program Files (x86)\VSTPlugIns (or your custom plug-in folder).
 4. Launch your favorite DAW.
+
+### How to install it (on OSX)
+
+WIP
