@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -26,52 +16,34 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
 {
 }
 
-WaveshaperAudioProcessor::~WaveshaperAudioProcessor()
-{
-}
+WaveshaperAudioProcessor::~WaveshaperAudioProcessor(){}
 
-AudioProcessorValueTreeState::ParameterLayout WaveshaperAudioProcessor::createParameterLayout()
-{
+AudioProcessorValueTreeState::ParameterLayout WaveshaperAudioProcessor::createParameterLayout() {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, -12.0f, 48.0f, 0.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(SINAMOUNT_ID, SINAMOUNT_NAME, 0.0f, 100.0f, 10.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(TANHMULT_ID, TANHMULT_NAME, 0.1f, 10.0f, 1.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(SINFREQ_ID, SINFREQ_NAME, 5.0f, 50.0f, 20.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(WAVESHAPER_ID, WAVESHAPER_NAME, -12.0f, 3.0f, 0.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(LPCUTOFF_ID, LPCUTOFF_NAME, NormalisableRange<float> (50.0f, 20000.0f, 1.0f, 0.3f, false), 20000.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(LPRESO_ID, LPRESO_NAME, 0.1f, 0.9f, 0.5f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(PEAKCUTOFF_ID, PEAKCUTOFF_NAME, NormalisableRange<float> (20.0f, 20000.0f, 1.0f, 0.3f, false), 1000.0f));
-
     parameters.push_back(std::make_unique<AudioParameterFloat>(PEAKVOL_ID, PEAKVOL_NAME, NormalisableRange<float>(-48.0f, 12.0f, 0.1f, 1.5f, false), 0.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(PEAKRESO_ID, PEAKRESO_NAME, 0.1f, 1.5f, 1.0f));
-    
     parameters.push_back(std::make_unique<AudioParameterBool>(LPBYPASS_ID, LPBYPASS_NAME, true));
     parameters.push_back(std::make_unique<AudioParameterBool>(PEAKBYPASS_ID, PEAKBYPASS_NAME, true));
     parameters.push_back(std::make_unique<AudioParameterBool>(BYPASS_ID, BYPASS_NAME, false));
-    
     parameters.push_back(std::make_unique<AudioParameterFloat>(CHOICE_ID, CHOICE_NAME, -1.0f, 1.0f, 0.0f));
     parameters.push_back(std::make_unique<AudioParameterFloat>(FILTERCHOICE_ID, FILTERCHOICE_NAME, 1.0f, 3.0f, 1.0f));
-    
     return {parameters.begin(), parameters.end()};
 }
 
 //==============================================================================
-const String WaveshaperAudioProcessor::getName() const
-{
+const String WaveshaperAudioProcessor::getName() const {
     return JucePlugin_Name;
 }
 
-bool WaveshaperAudioProcessor::acceptsMidi() const
-{
+bool WaveshaperAudioProcessor::acceptsMidi() const {
    #if JucePlugin_WantsMidiInput
     return true;
    #else
@@ -79,8 +51,7 @@ bool WaveshaperAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool WaveshaperAudioProcessor::producesMidi() const
-{
+bool WaveshaperAudioProcessor::producesMidi() const {
    #if JucePlugin_ProducesMidiOutput
     return true;
    #else
@@ -88,8 +59,7 @@ bool WaveshaperAudioProcessor::producesMidi() const
    #endif
 }
 
-bool WaveshaperAudioProcessor::isMidiEffect() const
-{
+bool WaveshaperAudioProcessor::isMidiEffect() const {
    #if JucePlugin_IsMidiEffect
     return true;
    #else
@@ -97,47 +67,34 @@ bool WaveshaperAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double WaveshaperAudioProcessor::getTailLengthSeconds() const
-{
+double WaveshaperAudioProcessor::getTailLengthSeconds() const {
     return 0.0;
 }
 
-int WaveshaperAudioProcessor::getNumPrograms()
-{
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+int WaveshaperAudioProcessor::getNumPrograms() {
+    return 1;
 }
 
-int WaveshaperAudioProcessor::getCurrentProgram()
-{
+int WaveshaperAudioProcessor::getCurrentProgram() {
     return 0;
 }
 
-void WaveshaperAudioProcessor::setCurrentProgram (int index)
-{
-}
+void WaveshaperAudioProcessor::setCurrentProgram (int index) {}
 
-const String WaveshaperAudioProcessor::getProgramName (int index)
-{
+const String WaveshaperAudioProcessor::getProgramName (int index) {
     return {};
 }
 
 void WaveshaperAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
-
 //==============================================================================
-void WaveshaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
+void WaveshaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock) {
     lastSampleRate = sampleRate;
     dsp::ProcessSpec spec;
     spec.sampleRate = lastSampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
-    
-    //processorChain.reset();
-    //processorChain.prepare(spec);
-    //processorChain.template get<ladderLPIndex>().setMode(juce::dsp::LadderFilter<float>::Mode::LPF24);
 
     lowpassProcessor.prepare(spec);
     lowpassProcessor.reset();
@@ -165,10 +122,8 @@ void WaveshaperAudioProcessor::releaseResources()
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
-
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool WaveshaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
-{
+bool WaveshaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
     return true;
@@ -191,8 +146,7 @@ bool WaveshaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 #endif
 
 
-void WaveshaperAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
-{
+void WaveshaperAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -239,8 +193,7 @@ void WaveshaperAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     }
 }
 
-float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess)
-{
+float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess) {
     //Get parameters from GUI
     float waveshapeChoice_ = *valueTree.getRawParameterValue(CHOICE_ID);
     float tanhMultValue_ = *valueTree.getRawParameterValue(TANHMULT_ID);
@@ -265,8 +218,7 @@ float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess)
     return sampleToProcess;
 }
 
-void WaveshaperAudioProcessor::multiFilter_(dsp::AudioBlock<float> bufferBlock)
-{
+void WaveshaperAudioProcessor::multiFilter_(dsp::AudioBlock<float> bufferBlock) {
     //Get parameters from GUI
     float filterChoice = *valueTree.getRawParameterValue(FILTERCHOICE_ID);
     float highPassCutoffValue = *valueTree.getRawParameterValue(PEAKCUTOFF_ID);
@@ -274,32 +226,35 @@ void WaveshaperAudioProcessor::multiFilter_(dsp::AudioBlock<float> bufferBlock)
     float peakVolume = *valueTree.getRawParameterValue(PEAKVOL_ID);
 
     //Smooth frequency knob
-    if (highPassCutoffValue != peakPrev)
-    {
+    if (highPassCutoffValue != peakPrev) {
         peakValue.setTargetValue(highPassCutoffValue);
         peakPrev = peakValue.getNextValue();
     }
 
 	//Set filter type
-	switch ((int)filterChoice)
-	{
+	switch ((int)filterChoice) {
 	case 1: //Highpass Filter
-		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, peakPrev, highPassResoValue);
+		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, 
+                                                                                   peakPrev, 
+                                                                                   highPassResoValue);
 		break;
 	case 2: //Notch Filter
-		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeNotch(lastSampleRate, peakPrev, highPassResoValue);
+		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeNotch(lastSampleRate, 
+                                                                                peakPrev, 
+                                                                                highPassResoValue);
 		break;
 	case 3: //Peak Filter
-		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makePeakFilter(lastSampleRate, peakPrev, 1.5, Decibels::decibelsToGain(peakVolume));
+		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makePeakFilter(lastSampleRate, 
+                                                                                     peakPrev, 
+                                                                                     1.5, 
+                                                                                     Decibels::decibelsToGain(peakVolume));
 		break;
 	}
-
     //Process the block
     multiFilterProcessor.process(dsp::ProcessContextReplacing<float>(bufferBlock));
 }
 
-void WaveshaperAudioProcessor::lowPassFilter_(dsp::AudioBlock<float> bufferBlock)
-{
+void WaveshaperAudioProcessor::lowPassFilter_(dsp::AudioBlock<float> bufferBlock) {
     //Get parameters from GUI
     float lowPassCutoffValue = *valueTree.getRawParameterValue(LPCUTOFF_ID);
     float lowPassResoValue = *valueTree.getRawParameterValue(LPRESO_ID);
@@ -317,27 +272,22 @@ void WaveshaperAudioProcessor::lowPassFilter_(dsp::AudioBlock<float> bufferBlock
     lowpassProcessor.process(dsp::ProcessContextReplacing<float>(bufferBlock));
 }
 
-//==============================================================================
-bool WaveshaperAudioProcessor::hasEditor() const
-{
-    return true; // (change this to false if you choose to not supply an editor)
+bool WaveshaperAudioProcessor::hasEditor() const {
+    return true;
 }
 
-AudioProcessorEditor* WaveshaperAudioProcessor::createEditor()
-{
+AudioProcessorEditor* WaveshaperAudioProcessor::createEditor() {
     return new WaveshaperAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void WaveshaperAudioProcessor::getStateInformation (MemoryBlock& destData)
-{
+void WaveshaperAudioProcessor::getStateInformation (MemoryBlock& destData) {
     auto state = valueTree.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
 
-void WaveshaperAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
+void WaveshaperAudioProcessor::setStateInformation (const void* data, int sizeInBytes) {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState.get() != nullptr)
@@ -345,9 +295,6 @@ void WaveshaperAudioProcessor::setStateInformation (const void* data, int sizeIn
             valueTree.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
+AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
     return new WaveshaperAudioProcessor();
 }

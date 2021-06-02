@@ -1,35 +1,17 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-//==============================================================================
-/**
-*/
 class WaveshaperAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
     WaveshaperAudioProcessorEditor (WaveshaperAudioProcessor&);
     ~WaveshaperAudioProcessorEditor();
 
-    //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
     void knobStyle(juce::Slider& knob);
-    
-    //int choiceSelected;
-
-
     
     Slider gainSlider;
     Slider waveshapeSlider;
@@ -88,11 +70,9 @@ public:
     
     std::unique_ptr <AudioProcessorValueTreeState::ComboBoxAttachment> waveshapeChoiceAttachment;
     std::unique_ptr <AudioProcessorValueTreeState::ComboBoxAttachment> filterChoiceAttachment;
-    //std::unique_ptr <AudioProcessorValueTreeState::Listener> choiceAttachment;
 
     ScopedPointer<Drawable> backgroundImage;
 
     std::unique_ptr <XmlElement> back;
     std::unique_ptr <XmlElement> logo;
-
 };
