@@ -1,5 +1,38 @@
 #pragma once
 
+#define GAIN_ID "gain"
+#define GAIN_NAME "Input Gain"
+#define SINAMOUNT_ID "sinamount"
+#define SINAMOUNT_NAME "Folding"
+#define TANHMULT_ID "tanhmult"
+#define TANHMULT_NAME "Curvature"
+#define SINFREQ_ID "sinfreq"
+#define SINFREQ_NAME "Fold Frequency"
+#define WAVESHAPER_ID "waveshaper"
+#define WAVESHAPER_NAME "Output Gain"
+#define LPCUTOFF_ID "lpcutoff"
+#define LPCUTOFF_NAME "Lowpass Cutoff"
+#define LPRESO_NAME "Lowpass Resonance"
+#define LPRESO_ID "lpresonance"
+
+#define PEAKCUTOFF_ID "peakcutoff"
+#define PEAKCUTOFF_NAME "Cutoff"
+#define PEAKRESO_ID "peakreso"
+#define PEAKRESO_NAME "Resonance"
+#define PEAKVOL_ID "peakvol"
+#define PEAKVOL_NAME "Peak Gain"
+
+#define BYPASS_ID "mbypass"
+#define BYPASS_NAME "Master Bypass"
+#define LPBYPASS_ID "lpbypass"
+#define LPBYPASS_NAME "Lowpass Bypass"
+#define PEAKBYPASS_ID "peakbypass"
+#define PEAKBYPASS_NAME "Filter 2 Bypass"
+#define CHOICE_ID "wschoice"
+#define CHOICE_NAME "Fold Wave"
+#define FILTERCHOICE_ID "filterchoice"
+#define FILTERCHOICE_NAME "Filter Choice"
+
 class Parameters {
 public:
 	std::vector<std::unique_ptr<RangedAudioParameter>> getParameters() {

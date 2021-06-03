@@ -1,43 +1,17 @@
 #pragma once
 
 #include <JuceHeader.h>
-#define GAIN_ID "gain"
-#define GAIN_NAME "Input Gain"
-#define SINAMOUNT_ID "sinamount"
-#define SINAMOUNT_NAME "Folding"
-#define TANHMULT_ID "tanhmult"
-#define TANHMULT_NAME "Curvature"
-#define SINFREQ_ID "sinfreq"
-#define SINFREQ_NAME "Fold Frequency"
-#define WAVESHAPER_ID "waveshaper"
-#define WAVESHAPER_NAME "Output Gain"
-#define LPCUTOFF_ID "lpcutoff"
-#define LPCUTOFF_NAME "Lowpass Cutoff"
-#define LPRESO_NAME "Lowpass Resonance"
-#define LPRESO_ID "lpresonance"
+#include "MultiFilterProcessor.h"
 
-#define PEAKCUTOFF_ID "peakcutoff"
-#define PEAKCUTOFF_NAME "Cutoff"
-#define PEAKRESO_ID "peakreso"
-#define PEAKRESO_NAME "Resonance"
-#define PEAKVOL_ID "peakvol"
-#define PEAKVOL_NAME "Peak Gain"
-
-#define BYPASS_ID "mbypass"
-#define BYPASS_NAME "Master Bypass"
-#define LPBYPASS_ID "lpbypass"
-#define LPBYPASS_NAME "Lowpass Bypass"
-#define PEAKBYPASS_ID "peakbypass"
-#define PEAKBYPASS_NAME "Filter 2 Bypass"
-#define CHOICE_ID "wschoice"
-#define CHOICE_NAME "Fold Wave"
-#define FILTERCHOICE_ID "filterchoice"
-#define FILTERCHOICE_NAME "Filter Choice"
-
-class WaveshaperAudioProcessor  : public AudioProcessor {
+class WaveshaperAudioProcessor  : public AudioProcessor, public AudioProcessorValueTreeState::Listener {
 public:
     WaveshaperAudioProcessor();
     ~WaveshaperAudioProcessor();
+
+    void parameterChanged(const String& id, float val) override {
+        if (id == PEAKCUTOFF_ID)
+            peakCutoff_ = val;
+    }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -69,12 +43,13 @@ public:
     double lastSampleRate;
     float wavefoldProcess(float sampleToProcess);
     void lowPassFilter_(dsp::AudioBlock<float> bufferBlock);
-    void multiFilter_(dsp::AudioBlock<float> bufferBlock);
+    //void multiFilter_(dsp::AudioBlock<float> bufferBlock);
     
     AudioProcessorValueTreeState valueTree;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
 private:
+    MultiFilter multiFilter_;
     
     enum {
         gainIndex,
@@ -83,14 +58,13 @@ private:
     };
 
     dsp::ProcessorDuplicator <dsp::IIR::Filter<float>, dsp::IIR::Coefficients <float>> lowpassProcessor;
-    dsp::ProcessorDuplicator <dsp::IIR::Filter<float>, dsp::IIR::Coefficients <float>> multiFilterProcessor;
 
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> cutoffValue, gainValue, peakValue;
 
     static constexpr float pi_ = juce::MathConstants<float>::pi;
     static constexpr float twoPi_ = juce::MathConstants<float>::twoPi;
     float phase;
-    float cutoffPrev, gainPrev, peakPrev, waveshapeChoicePrev;
+    float peakCutoff_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveshaperAudioProcessor)
 };
