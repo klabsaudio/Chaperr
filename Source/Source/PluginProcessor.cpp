@@ -13,7 +13,7 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
                      #endif
                        ), 
     valueTree(*this, nullptr, "Parameters", createParameterLayout()),
-    multiFilter_(valueTree)
+    multiFilterL_(valueTree), multiFilterR_(valueTree)
 #endif
 {
     valueTree.addParameterListener(PEAKCUTOFF_ID, this);
@@ -85,6 +85,9 @@ void WaveshaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
 
+    multiFilterL_.setSampleRate(spec.sampleRate);
+    multiFilterR_.setSampleRate(spec.sampleRate);
+
     //lowpassProcessor.prepare(spec);
     //lowpassProcessor.reset();
     //multiFilterProcessor.prepare(spec);
@@ -148,15 +151,17 @@ void WaveshaperAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     if (!masterBypassBool) {
 
         for (int channel = 0; channel < totalNumInputChannels; ++channel) {
+            auto sample = buffer.getWritePointer(channel);
             for (auto s = 0; s < buffer.getNumSamples(); ++s) {
-                auto sample = buffer.getWritePointer(channel);
                 sample[s] *= Decibels::decibelsToGain(inputGainValue);
 
                 //Waveshape & Wavefold process
-                sample[s] = wavefoldProcess(sample[s]);
+                //sample[s] = wavefoldProcess(sample[s]);
 
-
-                sample[s] = multiFilter_.Process(sample[s]);
+                if(channel == 0)
+                    sample[s] = multiFilterL_.Process(sample[s]);
+                if(channel == 1)
+                    sample[s] = multiFilterR_.Process(sample[s]);
 
                 //Output Gain
                 sample[s] *= Decibels::decibelsToGain(outputGainValue);
@@ -166,9 +171,9 @@ void WaveshaperAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         dsp::AudioBlock<float> block(buffer);
 
         //Lowpass filter process
-        if(!lowPassBypassBool) {
-            lowPassFilter_(block);
-        }
+        //if(!lowPassBypassBool) {
+        //    lowPassFilter_(block);
+        //}
     }
 }
 
@@ -196,35 +201,6 @@ float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess) {
 
     return sampleToProcess;
 }
-
-//void WaveshaperAudioProcessor::multiFilter_(dsp::AudioBlock<float> bufferBlock) {
-//    //Get parameters from GUI
-//    float filterChoice = *valueTree.getRawParameterValue(FILTERCHOICE_ID);
-//    float highPassResoValue = *valueTree.getRawParameterValue(PEAKRESO_ID);
-//    float peakVolume = *valueTree.getRawParameterValue(PEAKVOL_ID);
-//
-//	//Set filter type
-//	switch ((int)filterChoice) {
-//	case 1: //Highpass Filter
-//		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, 
-//                                                                                   peakCutoff_, 
-//                                                                                   highPassResoValue);
-//		break;
-//	case 2: //Notch Filter
-//		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makeNotch(lastSampleRate, 
-//                                                                                peakCutoff_, 
-//                                                                                highPassResoValue);
-//		break;
-//	case 3: //Peak Filter
-//		*multiFilterProcessor.state = *dsp::IIR::Coefficients<float>::makePeakFilter(lastSampleRate, 
-//                                                                                     peakCutoff_, 
-//                                                                                     1.5,
-//                                                                                     Decibels::decibelsToGain(peakVolume));
-//		break;
-//	}
-//    //Process the block
-//    multiFilterProcessor.process(dsp::ProcessContextReplacing<float>(bufferBlock));
-//}
 
 void WaveshaperAudioProcessor::lowPassFilter_(dsp::AudioBlock<float> bufferBlock) {
     //Get parameters from GUI
