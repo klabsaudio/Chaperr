@@ -59,3 +59,11 @@ private:
 		}
 	}
 };
+
+struct MultiFilters : juce::OwnedArray<MultiFilter> {
+	MultiFilters(juce::AudioProcessorValueTreeState& apvts, int numChannels) {
+		for (int i = 0; i < numChannels; i++) {
+			this->add(new MultiFilter(apvts));
+		}
+	}
+};

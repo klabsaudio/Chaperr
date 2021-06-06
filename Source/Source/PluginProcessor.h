@@ -49,9 +49,8 @@ public:
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
 private:
-    MultiFilter multiFilterL_;
-    MultiFilter multiFilterR_;
-    
+    MultiFilters multiFilters_;
+
     enum {
         gainIndex,
         waveshaperIndex,
