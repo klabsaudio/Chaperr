@@ -13,12 +13,17 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
                      #endif
                        ),
 	valueTree(*this, nullptr, "Parameters", createParameterLayout()),
-	mf_(valueTree, getNumInputChannels()), lpf_(valueTree, getNumInputChannels())
+	mf_(valueTree, getNumInputChannels()), lpf_(valueTree, getNumInputChannels()),
+	wsp_(valueTree)
 #endif
 {
 	valueTree.addParameterListener(BYPASS_ID, this);
 	valueTree.addParameterListener(INPUT_GAIN_ID, this);
 	valueTree.addParameterListener(OUTPUT_GAIN_ID, this);
+	valueTree.addParameterListener(LPBYPASS_ID, this);
+	valueTree.addParameterListener(PEAKBYPASS_ID, this);
+
+	masterBypass_ = *valueTree.getRawParameterValue(BYPASS_ID);
 }
 
 WaveshaperAudioProcessor::~WaveshaperAudioProcessor() {}
@@ -101,6 +106,12 @@ void WaveshaperAudioProcessor::parameterChanged(const String& id, float val) {
 	else if (id == OUTPUT_GAIN_ID) {
 		outputGain_ = val;
 	}
+	else if (id == LPBYPASS_ID) {
+		lpfBypass_ = bool(val);
+	}
+	else if (id == PEAKBYPASS_ID) {
+		mfBypass_ = bool(val);
+	}
 }
 
 void WaveshaperAudioProcessor::releaseResources() {}
@@ -141,42 +152,18 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 				chanBuffer[s] *= Decibels::decibelsToGain(inputGain_);
 
 				//Waveshape & Wavefold process
-				//sample[s] = wavefoldProcess(sample[s]);
+				chanBuffer[s] = wsp_.Process(chanBuffer[s]);
 
-				chanBuffer[s] = lpf_[chan]->processSingleSampleRaw(chanBuffer[s]);
-				chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
+				if(!lpfBypass_)
+					chanBuffer[s] = lpf_[chan]->processSingleSampleRaw(chanBuffer[s]);
+				if(!mfBypass_)
+					chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
 
 				//Output Gain
 				chanBuffer[s] *= Decibels::decibelsToGain(outputGain_);
 			}
 		}
 	}
-}
-
-float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess) {
-	//Get parameters from GUI
-	float waveshapeChoice_ = *valueTree.getRawParameterValue(CHOICE_ID);
-	float tanhMultValue_ = *valueTree.getRawParameterValue(TANHMULT_ID);
-	float sinFreqValue_ = *valueTree.getRawParameterValue(SINFREQ_ID);
-	float sinAmountFloat_ = *valueTree.getRawParameterValue(SINAMOUNT_ID) * 0.005f;
-	float memorySample_ = sampleToProcess;
-
-	//Tanh function applied to the signal
-	sampleToProcess = std::tanh(sampleToProcess * tanhMultValue_);
-
-	if (waveshapeChoice_ == -1) {
-		//Triangle (not really a pure triangle)
-		sampleToProcess += sinAmountFloat_ * std::asin(std::sin(memorySample_ * (sinFreqValue_ - 4.f)));
-		sampleToProcess += sinAmountFloat_ * std::sin(memorySample_ * sinFreqValue_ * 2.f);
-	}
-	else if (waveshapeChoice_ == 0) {
-		//Sinewave
-		sampleToProcess += sinAmountFloat_ * std::sin(memorySample_ * sinFreqValue_);
-	}
-
-	sampleToProcess = juce::jlimit(float(-1.0), float(1.0), sampleToProcess);
-
-	return sampleToProcess;
 }
 
 bool WaveshaperAudioProcessor::hasEditor() const {

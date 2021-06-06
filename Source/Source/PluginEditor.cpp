@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -120,7 +110,7 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     masterBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, BYPASS_ID, masterBypassButton));
 
     // CHOICEBOX ATTACHMENTS
-    waveshapeChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, CHOICE_ID, waveshapeChoice));
+    waveshapeChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, WAVECHOICE_ID, waveshapeChoice));
     filterChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, FILTERCHOICE_ID, filterChoice));
 
 #pragma endregion

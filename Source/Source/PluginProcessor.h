@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "MultiFilterProcessor.h"
 #include "LowpassProcessor.h"
+#include "WaveshapeProcessor.h"
 
 class WaveshaperAudioProcessor  : public AudioProcessor, public AudioProcessorValueTreeState::Listener {
 public:
@@ -45,6 +46,7 @@ public:
 private:
     LowPassFilter lpf_;
     MultiFilter mf_;
+    WaveshapeProcessor wsp_;
 
     void parameterChanged(const String& id, float val) override;
 
@@ -57,7 +59,7 @@ private:
     static constexpr float pi_ = juce::MathConstants<float>::pi;
     static constexpr float twoPi_ = juce::MathConstants<float>::twoPi;
     float inputGain_, outputGain_;
-    bool masterBypass_;
+    bool masterBypass_, lpfBypass_, mfBypass_;
     float phase;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveshaperAudioProcessor)

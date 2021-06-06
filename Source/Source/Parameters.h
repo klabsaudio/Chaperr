@@ -28,8 +28,8 @@
 #define LPBYPASS_NAME "Lowpass Bypass"
 #define PEAKBYPASS_ID "peakbypass"
 #define PEAKBYPASS_NAME "Filter 2 Bypass"
-#define CHOICE_ID "wschoice"
-#define CHOICE_NAME "Fold Wave"
+#define WAVECHOICE_ID "wschoice"
+#define WAVECHOICE_NAME "Fold Wave"
 #define FILTERCHOICE_ID "filterchoice"
 #define FILTERCHOICE_NAME "Filter Choice"
 
@@ -49,7 +49,7 @@ public:
         parameters.push_back(std::make_unique<AudioParameterBool>(LPBYPASS_ID, LPBYPASS_NAME, true));
         parameters.push_back(std::make_unique<AudioParameterBool>(PEAKBYPASS_ID, PEAKBYPASS_NAME, true));
         parameters.push_back(std::make_unique<AudioParameterBool>(BYPASS_ID, BYPASS_NAME, false));
-        parameters.push_back(std::make_unique<AudioParameterFloat>(CHOICE_ID, CHOICE_NAME, -1.0f, 1.0f, 0.0f));
+        parameters.push_back(std::make_unique<AudioParameterFloat>(WAVECHOICE_ID, WAVECHOICE_NAME, -1.0f, 1.0f, 0.0f));
         parameters.push_back(std::make_unique<AudioParameterFloat>(FILTERCHOICE_ID, FILTERCHOICE_NAME, 1.0f, 3.0f, 1.0f));
         parameters.push_back(std::make_unique<AudioParameterFloat>(OUTPUT_GAIN_ID, OUTPUT_GAIN_NAME, -12.0f, 3.0f, 0.0f));
         return parameters;

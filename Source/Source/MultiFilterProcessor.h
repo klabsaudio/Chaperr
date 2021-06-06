@@ -7,7 +7,6 @@ struct MultiFilter : AudioProcessorValueTreeState::Listener, juce::OwnedArray<II
 		apvts.addParameterListener(PEAKRESO_ID, this);
 		apvts.addParameterListener(PEAKVOL_ID, this);
 		apvts.addParameterListener(FILTERCHOICE_ID, this);
-		apvts.addParameterListener(PEAKBYPASS_ID, this);
 
 		for (int i = 0; i < numChannels; i++) {
 			this->add(new IIRFilter());
@@ -22,7 +21,6 @@ private:
 	juce::AudioProcessorValueTreeState& apvts_;
 	float sampleRate_ = 44100.f;
 	float peakCutoff_ = 1000.f, peakReso_ = 1.f, peakVol_ = 1.f, filterChoice_;
-	bool bypass_;
 
 	void parameterChanged(const String& id, float val) override {
 		if (id == FILTERCHOICE_ID) {
@@ -36,9 +34,6 @@ private:
 		}
 		else if (id == PEAKCUTOFF_ID) {
 			peakCutoff_ = val;
-		}
-		else if (id == PEAKBYPASS_ID) {
-			bypass_ = bool(val);
 		}
 		setFilterParameters();
 	}
