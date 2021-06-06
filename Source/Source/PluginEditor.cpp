@@ -91,10 +91,10 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     //Attachments
 #pragma region Attachments
     // INPUT GAIN ATTACHMENT
-    gainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, GAIN_ID, gainSlider));
+    gainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, INPUT_GAIN_ID, gainSlider));
 
     // OUTPUT GAIN ATTACHMENT
-    waveshaperAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, WAVESHAPER_ID, waveshapeSlider));
+    waveshaperAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, OUTPUT_GAIN_ID, waveshapeSlider));
 
     //SIN AMOUNT ATTACHMENT
     sinAmountAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, SINAMOUNT_ID, sinAmountSlider));

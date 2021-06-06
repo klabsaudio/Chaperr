@@ -15,7 +15,11 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
 	valueTree(*this, nullptr, "Parameters", createParameterLayout()),
 	mf_(valueTree, getNumInputChannels()), lpf_(valueTree, getNumInputChannels())
 #endif
-{}
+{
+	valueTree.addParameterListener(BYPASS_ID, this);
+	valueTree.addParameterListener(INPUT_GAIN_ID, this);
+	valueTree.addParameterListener(OUTPUT_GAIN_ID, this);
+}
 
 WaveshaperAudioProcessor::~WaveshaperAudioProcessor() {}
 
@@ -85,11 +89,18 @@ void WaveshaperAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
 
 	lpf_.setSampleRate(sampleRate);
 	mf_.setSampleRate(sampleRate);
+}
 
-	//gainValue.reset(lastSampleRate, 0.001f);
-	//gainValue.reset(2);
-	//gainPrev = *valueTree.getRawParameterValue(GAIN_ID);
-	//gainValue.setCurrentAndTargetValue(gainPrev);
+void WaveshaperAudioProcessor::parameterChanged(const String& id, float val) {
+	if (id == BYPASS_ID) {
+		masterBypass_ = bool(val);
+	}
+	else if (id == INPUT_GAIN_ID) {
+		inputGain_ = val;
+	}
+	else if (id == OUTPUT_GAIN_ID) {
+		outputGain_ = val;
+	}
 }
 
 void WaveshaperAudioProcessor::releaseResources() {}
@@ -119,23 +130,15 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 	auto totalNumInputChannels = getTotalNumInputChannels();
 	auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-	//Get bypass parameters from GUI
-	bool masterBypassBool = *valueTree.getRawParameterValue(BYPASS_ID);
-	//bool lowPassBypassBool = *valueTree.getRawParameterValue(LPBYPASS_ID);
-
-	//Get volume parameters from GUI
-	float inputGainValue = *valueTree.getRawParameterValue(GAIN_ID);
-	float outputGainValue = *valueTree.getRawParameterValue(WAVESHAPER_ID);
-
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
 		buffer.clear(i, 0, buffer.getNumSamples());
 	}
 
-	if (!masterBypassBool) {
+	if (!masterBypass_) {
 		for (int chan = 0; chan < totalNumInputChannels; ++chan) {
 			auto chanBuffer = buffer.getWritePointer(chan);
 			for (auto s = 0; s < buffer.getNumSamples(); ++s) {
-				chanBuffer[s] *= Decibels::decibelsToGain(inputGainValue);
+				chanBuffer[s] *= Decibels::decibelsToGain(inputGain_);
 
 				//Waveshape & Wavefold process
 				//sample[s] = wavefoldProcess(sample[s]);
@@ -144,16 +147,9 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 				chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
 
 				//Output Gain
-				chanBuffer[s] *= Decibels::decibelsToGain(outputGainValue);
+				chanBuffer[s] *= Decibels::decibelsToGain(outputGain_);
 			}
 		}
-
-		//dsp::AudioBlock<float> block(buffer);
-
-		//Lowpass filter process
-		//if(!lowPassBypassBool) {
-		//    lowPassFilter_(block);
-		//}
 	}
 }
 
@@ -181,24 +177,6 @@ float WaveshaperAudioProcessor::wavefoldProcess(float sampleToProcess) {
 	sampleToProcess = juce::jlimit(float(-1.0), float(1.0), sampleToProcess);
 
 	return sampleToProcess;
-}
-
-void WaveshaperAudioProcessor::lowPassFilter_(dsp::AudioBlock<float> bufferBlock) {
-	//Get parameters from GUI
-	float lowPassCutoffValue = *valueTree.getRawParameterValue(LPCUTOFF_ID);
-	float lowPassResoValue = *valueTree.getRawParameterValue(LPRESO_ID);
-
-	//Smooth frequency knob
-	//if (lowPassCutoffValue != cutoffPrev)
-	//{
-	//    cutoffValue.setTargetValue(lowPassCutoffValue);
-	//    cutoffPrev = cutoffValue.getNextValue();
-	//}
-
-	//Update cutoff and Q
-	//*lowpassProcessor.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, cutoffPrev, lowPassResoValue);
-	// Process the block
-	lowpassProcessor.process(dsp::ProcessContextReplacing<float>(bufferBlock));
 }
 
 bool WaveshaperAudioProcessor::hasEditor() const {

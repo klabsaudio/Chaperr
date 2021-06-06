@@ -9,11 +9,6 @@ public:
     WaveshaperAudioProcessor();
     ~WaveshaperAudioProcessor();
 
-    void parameterChanged(const String& id, float val) override {
-        if (id == PEAKCUTOFF_ID)
-            peakCutoff_ = val;
-    }
-
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -43,8 +38,6 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     double lastSampleRate;
     float wavefoldProcess(float sampleToProcess);
-    void lowPassFilter_(dsp::AudioBlock<float> bufferBlock);
-    //void multiFilter_(dsp::AudioBlock<float> bufferBlock);
     
     AudioProcessorValueTreeState valueTree;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -53,20 +46,19 @@ private:
     LowPassFilter lpf_;
     MultiFilter mf_;
 
+    void parameterChanged(const String& id, float val) override;
+
     enum {
         gainIndex,
         waveshaperIndex,
         ladderLPIndex
     };
 
-    dsp::ProcessorDuplicator <dsp::IIR::Filter<float>, dsp::IIR::Coefficients <float>> lowpassProcessor;
-
-    SmoothedValue<float, ValueSmoothingTypes::Multiplicative> cutoffValue, gainValue, peakValue;
-
     static constexpr float pi_ = juce::MathConstants<float>::pi;
     static constexpr float twoPi_ = juce::MathConstants<float>::twoPi;
+    float inputGain_, outputGain_;
+    bool masterBypass_;
     float phase;
-    float peakCutoff_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveshaperAudioProcessor)
 };
