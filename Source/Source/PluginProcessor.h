@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "MultiFilterProcessor.h"
+#include "LowpassProcessor.h"
 
 class WaveshaperAudioProcessor  : public AudioProcessor, public AudioProcessorValueTreeState::Listener {
 public:
@@ -49,7 +50,8 @@ public:
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
 private:
-    MultiFilters multiFilters_;
+    LowPassFilter lpf_;
+    MultiFilter mf_;
 
     enum {
         gainIndex,

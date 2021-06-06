@@ -13,11 +13,9 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
                      #endif
                        ),
 	valueTree(*this, nullptr, "Parameters", createParameterLayout()),
-	multiFilters_(valueTree, getNumInputChannels())
+	mf_(valueTree, getNumInputChannels()), lpf_(valueTree, getNumInputChannels())
 #endif
-{
-	valueTree.addParameterListener(PEAKCUTOFF_ID, this);
-}
+{}
 
 WaveshaperAudioProcessor::~WaveshaperAudioProcessor() {}
 
@@ -85,28 +83,13 @@ void WaveshaperAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
 	spec.maximumBlockSize = samplesPerBlock;
 	spec.numChannels = getTotalNumOutputChannels();
 
-	for (auto f : multiFilters_)
-		f->setSampleRate(sampleRate);
-
-	//lowpassProcessor.prepare(spec);
-	//lowpassProcessor.reset();
-	//multiFilterProcessor.prepare(spec);
-	//multiFilterProcessor.reset();
-
-	//cutoffValue.reset(lastSampleRate, 0.001f);
-	//cutoffValue.reset(4);
-	//cutoffPrev = *valueTree.getRawParameterValue(LPCUTOFF_ID);
-	//cutoffValue.setCurrentAndTargetValue(cutoffPrev);
+	lpf_.setSampleRate(sampleRate);
+	mf_.setSampleRate(sampleRate);
 
 	//gainValue.reset(lastSampleRate, 0.001f);
 	//gainValue.reset(2);
 	//gainPrev = *valueTree.getRawParameterValue(GAIN_ID);
 	//gainValue.setCurrentAndTargetValue(gainPrev);
-
-	//peakValue.reset(lastSampleRate, 0.001f);
-	//peakValue.reset(4);
-	//peakPrev = *valueTree.getRawParameterValue(PEAKCUTOFF_ID);
-	//peakValue.setCurrentAndTargetValue(peakPrev);
 }
 
 void WaveshaperAudioProcessor::releaseResources() {}
@@ -157,7 +140,8 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 				//Waveshape & Wavefold process
 				//sample[s] = wavefoldProcess(sample[s]);
 
-				chanBuffer[s] = multiFilters_[chan]->Process(chanBuffer[s]);
+				chanBuffer[s] = lpf_[chan]->processSingleSampleRaw(chanBuffer[s]);
+				chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
 
 				//Output Gain
 				chanBuffer[s] *= Decibels::decibelsToGain(outputGainValue);

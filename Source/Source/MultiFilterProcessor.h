@@ -1,29 +1,25 @@
 #pragma once
 #include "Parameters.h"
 
-struct MultiFilter : AudioProcessorValueTreeState::Listener {
-	MultiFilter(juce::AudioProcessorValueTreeState& apvts) : apvts_(apvts) {
+struct MultiFilter : AudioProcessorValueTreeState::Listener, juce::OwnedArray<IIRFilter> {
+	MultiFilter(juce::AudioProcessorValueTreeState& apvts, int numChannels) : apvts_(apvts) {
 		apvts.addParameterListener(PEAKCUTOFF_ID, this);
 		apvts.addParameterListener(PEAKRESO_ID, this);
 		apvts.addParameterListener(PEAKVOL_ID, this);
 		apvts.addParameterListener(FILTERCHOICE_ID, this);
 		apvts.addParameterListener(PEAKBYPASS_ID, this);
-		filterProcessor_.reset();
-		filterChoice_ = *apvts_.getRawParameterValue(FILTERCHOICE_ID);
-	}
 
-	float Process(float sample) {
-		if (!bypass_) {
-			return filterProcessor_.processSingleSampleRaw(sample);
+		for (int i = 0; i < numChannels; i++) {
+			this->add(new IIRFilter());
+			(*this)[i]->reset();
 		}
-		return sample;
+		filterChoice_ = *apvts_.getRawParameterValue(FILTERCHOICE_ID);
 	}
 
 	void setSampleRate(float sampleRate) { sampleRate_ = sampleRate; }
 
 private:
 	juce::AudioProcessorValueTreeState& apvts_;
-	IIRFilter filterProcessor_;
 	float sampleRate_ = 44100.f;
 	float peakCutoff_ = 1000.f, peakReso_ = 1.f, peakVol_ = 1.f, filterChoice_;
 	bool bypass_;
@@ -49,21 +45,16 @@ private:
 
 	void setFilterParameters() {
 		if (filterChoice_ == 1) {
-			filterProcessor_.setCoefficients(IIRCoefficients::makeHighPass(sampleRate_, peakCutoff_, peakReso_));
+			for (int i = 0; i < this->size(); i++)
+				(*this)[i]->setCoefficients(IIRCoefficients::makeHighPass(sampleRate_, peakCutoff_, peakReso_));
 		}
 		else if (filterChoice_ == 2) {
-			filterProcessor_.setCoefficients(IIRCoefficients::makeNotchFilter(sampleRate_, peakCutoff_, peakReso_));
+			for (int i = 0; i < this->size(); i++)
+				(*this)[i]->setCoefficients(IIRCoefficients::makeNotchFilter(sampleRate_, peakCutoff_, peakReso_));
 		}
 		else if (filterChoice_ == 3) {
-			filterProcessor_.setCoefficients(IIRCoefficients::makePeakFilter(sampleRate_, peakCutoff_, 1.f, peakVol_));
-		}
-	}
-};
-
-struct MultiFilters : juce::OwnedArray<MultiFilter> {
-	MultiFilters(juce::AudioProcessorValueTreeState& apvts, int numChannels) {
-		for (int i = 0; i < numChannels; i++) {
-			this->add(new MultiFilter(apvts));
+			for (int i = 0; i < this->size(); i++)
+				(*this)[i]->setCoefficients(IIRCoefficients::makePeakFilter(sampleRate_, peakCutoff_, 1.f, peakVol_));
 		}
 	}
 };

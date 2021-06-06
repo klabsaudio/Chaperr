@@ -7,6 +7,8 @@
               jucerFormatVersion="1" companyCopyright="klabsaudio">
   <MAINGROUP id="lCswM0" name="Chaperr">
     <GROUP id="{CBF48A65-4D1F-FEBB-0CB6-6631B5DC088C}" name="Source">
+      <FILE id="SA8MDT" name="LowpassProcessor.h" compile="0" resource="0"
+            file="Source/LowpassProcessor.h"/>
       <FILE id="vCwGrc" name="MultiFilterProcessor.h" compile="0" resource="0"
             file="Source/MultiFilterProcessor.h"/>
       <FILE id="nMtddj" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
