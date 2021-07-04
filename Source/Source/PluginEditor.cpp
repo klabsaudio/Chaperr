@@ -7,8 +7,8 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
 {
 	setSize(700, 220);
     setResizable(false, false);
+
     //Knobs
-#pragma region Knobs
     // INPUT GAIN UI SLIDER
     knobStyle(gainSlider);
     gainSlider.setRange(-12.0f, 48.0f);
@@ -56,9 +56,7 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     peakVolumeSlider.setTextValueSuffix(" dB");
 
     peakBypass.setColour(ToggleButton::tickColourId, Colours::white);
-#pragma endregion
 
-    
     // WAVESHAPE CHOICE
     waveshapeChoice.addItem("Sawtooth", 1);
     waveshapeChoice.addItem("Sinewave", 2);
@@ -67,7 +65,6 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     waveshapeChoice.setColour(ComboBox::arrowColourId, Colours::white);
     waveshapeChoice.setColour(ComboBox::backgroundColourId, Colours::transparentBlack);
     waveshapeChoice.setColour(ComboBox::outlineColourId, Colours::transparentBlack);
-    waveshapeChoice.setColour(ComboBox::focusedOutlineColourId, Colours::mistyrose);
 
     // FILTER CHOICE
     filterChoice.addItem("LP + HP", 1);
@@ -79,55 +76,40 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     filterChoice.setColour(ComboBox::outlineColourId, Colours::transparentBlack);
 
     //Attachments
-#pragma region Attachments
     // INPUT GAIN ATTACHMENT
     gainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, INPUT_GAIN_ID, gainSlider));
-
     // OUTPUT GAIN ATTACHMENT
     waveshaperAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, OUTPUT_GAIN_ID, waveshapeSlider));
-
     //SIN AMOUNT ATTACHMENT
     sinAmountAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, SINAMOUNT_ID, sinAmountSlider));
-
     //TANH MULTIPLIER ATTACHMENT
     tanhMultAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, TANHMULT_ID, tanhMultSlider));
-
     //SINFREQ ATTACHMENT
     sinFreqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, SINFREQ_ID, sinFreqSlider));
-
     // LOWPASS ATTACHMENTS
     lpcutoffAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, LPCUTOFF_ID, lowPassCutoffSlider));
     lpresonanceAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, LPRESO_ID, lowPassResoSlider));
-
     // PEAK ATTACHMENTS
     peakFrqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKCUTOFF_ID, peakFreqSlider));
     peakResoAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKRESO_ID, peakResoSlider));
     peakVolumeAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKVOL_ID, peakVolumeSlider));
-
     // BYPASS BUTTONS ATTACHMENTS
     lowPassBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, LPBYPASS_ID, lowPassButton));
     peakBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, PEAKBYPASS_ID, peakBypass));
     masterBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, BYPASS_ID, masterBypassButton));
-
     // CHOICEBOX ATTACHMENTS
     waveshapeChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, WAVECHOICE_ID, waveshapeChoice));
     filterChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, FILTERCHOICE_ID, filterChoice));
 
-#pragma endregion
-
     // MAKE UI VISIBLE
-
     addAndMakeVisible(&peakBypass);
     addAndMakeVisible(&lowPassButton);
     addAndMakeVisible(&masterBypassButton);
     addAndMakeVisible(&waveshapeChoice);
     addAndMakeVisible(&filterChoice);
-    
 }
 
-WaveshaperAudioProcessorEditor::~WaveshaperAudioProcessorEditor()
-{
-}
+WaveshaperAudioProcessorEditor::~WaveshaperAudioProcessorEditor() {}
 
 void WaveshaperAudioProcessorEditor::knobStyle(juce::Slider& knob)
 {
