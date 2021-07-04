@@ -7,6 +7,11 @@ struct WaveshapeProcessor : AudioProcessorValueTreeState::Listener {
 		apvts.addParameterListener(TANHMULT_ID, this);
 		apvts.addParameterListener(SINFREQ_ID, this);
 		apvts.addParameterListener(SINAMOUNT_ID, this);
+
+		waveChoice_ = *apvts.getRawParameterValue(WAVECHOICE_ID);
+		tanhMult_ = *apvts.getRawParameterValue(TANHMULT_ID);
+		sinFreq_ = *apvts.getRawParameterValue(SINFREQ_ID);
+		sinAmount_ = *apvts.getRawParameterValue(SINAMOUNT_ID);
 	}
 
 	float Process(float sample) {
@@ -15,15 +20,15 @@ struct WaveshapeProcessor : AudioProcessorValueTreeState::Listener {
 		//Tanh function applied to the signal
 		sample = std::tanh(sample * tanhMult_);
 
-		//if (waveChoice_ == -1) {
-		//	//Triangle (not really a pure triangle)
-		//	sample += sinAmount_ * std::asin(std::sin(drySample * (sinFreq_ - 4.f)));
-		//	sample += sinAmount_ * std::sin(drySample * sinFreq_ * 2.f);
-		//}
-		//else if (waveChoice_ == 0) {
+		if (waveChoice_ == -1) {
+			//Triangle (not really a pure triangle)
+			sample += sinAmount_ * std::asin(std::sin(drySample * (sinFreq_ - 4.f)));
+			sample += sinAmount_ * std::sin(drySample * sinFreq_ * 2.f);
+		}
+		else if (waveChoice_ == 0) {
 			//Sinewave
-			//sample += sinAmount_ * std::sin(drySample * sinFreq_);
-		//}
+			sample += sinAmount_ * std::sin(drySample * sinFreq_);
+		}
 
 		return juce::jlimit(-1.f, 1.f, sample);
 	}
