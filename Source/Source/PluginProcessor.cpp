@@ -24,6 +24,10 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
 	valueTree.addParameterListener(PEAKBYPASS_ID, this);
 
 	masterBypass_ = *valueTree.getRawParameterValue(BYPASS_ID);
+	inputGain_ = *valueTree.getRawParameterValue(INPUT_GAIN_ID);
+	outputGain_ = *valueTree.getRawParameterValue(OUTPUT_GAIN_ID);
+	lpfBypass_ = *valueTree.getRawParameterValue(LPBYPASS_ID);
+	mfBypass_ = *valueTree.getRawParameterValue(PEAKBYPASS_ID);
 }
 
 WaveshaperAudioProcessor::~WaveshaperAudioProcessor() {}

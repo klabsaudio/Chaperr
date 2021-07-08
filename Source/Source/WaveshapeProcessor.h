@@ -11,7 +11,7 @@ struct WaveshapeProcessor : AudioProcessorValueTreeState::Listener {
 		waveChoice_ = *apvts.getRawParameterValue(WAVECHOICE_ID);
 		tanhMult_ = *apvts.getRawParameterValue(TANHMULT_ID);
 		sinFreq_ = *apvts.getRawParameterValue(SINFREQ_ID);
-		sinAmount_ = *apvts.getRawParameterValue(SINAMOUNT_ID);
+		sinAmount_ = *apvts.getRawParameterValue(SINAMOUNT_ID) * 0.005f;
 	}
 
 	float Process(float sample) {
