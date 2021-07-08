@@ -38,7 +38,6 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     double lastSampleRate;
-    float wavefoldProcess(float sampleToProcess);
     
     AudioProcessorValueTreeState valueTree;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -50,17 +49,8 @@ private:
 
     void parameterChanged(const String& id, float val) override;
 
-    enum {
-        gainIndex,
-        waveshaperIndex,
-        ladderLPIndex
-    };
-
-    static constexpr float pi_ = juce::MathConstants<float>::pi;
-    static constexpr float twoPi_ = juce::MathConstants<float>::twoPi;
-    float inputGain_, outputGain_;
+    SmoothedValue<float, juce::ValueSmoothingTypes::Linear> inputGain_, outputGain_;
     bool masterBypass_, lpfBypass_, mfBypass_;
-    float phase;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveshaperAudioProcessor)
 };

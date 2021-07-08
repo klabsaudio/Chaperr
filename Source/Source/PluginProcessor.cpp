@@ -24,8 +24,8 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
 	valueTree.addParameterListener(PEAKBYPASS_ID, this);
 
 	masterBypass_ = *valueTree.getRawParameterValue(BYPASS_ID);
-	inputGain_ = *valueTree.getRawParameterValue(INPUT_GAIN_ID);
-	outputGain_ = *valueTree.getRawParameterValue(OUTPUT_GAIN_ID);
+	inputGain_.setValue(*valueTree.getRawParameterValue(INPUT_GAIN_ID));
+	outputGain_.setValue(*valueTree.getRawParameterValue(OUTPUT_GAIN_ID));
 	lpfBypass_ = *valueTree.getRawParameterValue(LPBYPASS_ID);
 	mfBypass_ = *valueTree.getRawParameterValue(PEAKBYPASS_ID);
 }
@@ -98,6 +98,9 @@ void WaveshaperAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
 
 	lpf_.setSampleRate(sampleRate);
 	mf_.setSampleRate(sampleRate);
+
+	inputGain_.reset(sampleRate, 0.1f);
+	outputGain_.reset(sampleRate, 0.1f);
 }
 
 void WaveshaperAudioProcessor::parameterChanged(const String& id, float val) {
@@ -105,10 +108,10 @@ void WaveshaperAudioProcessor::parameterChanged(const String& id, float val) {
 		masterBypass_ = bool(val);
 	}
 	else if (id == INPUT_GAIN_ID) {
-		inputGain_ = val;
+		inputGain_.setTargetValue(val);
 	}
 	else if (id == OUTPUT_GAIN_ID) {
-		outputGain_ = val;
+		outputGain_.setTargetValue(val);
 	}
 	else if (id == LPBYPASS_ID) {
 		lpfBypass_ = bool(val);
@@ -153,7 +156,7 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 		for (int chan = 0; chan < totalNumInputChannels; ++chan) {
 			auto chanBuffer = buffer.getWritePointer(chan);
 			for (auto s = 0; s < buffer.getNumSamples(); ++s) {
-				chanBuffer[s] *= Decibels::decibelsToGain(inputGain_);
+				chanBuffer[s] *= Decibels::decibelsToGain(inputGain_.getNextValue());
 
 				//Waveshape & Wavefold process
 				chanBuffer[s] = wsp_.Process(chanBuffer[s]);
@@ -164,7 +167,7 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 					chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
 
 				//Output Gain
-				chanBuffer[s] *= Decibels::decibelsToGain(outputGain_);
+				chanBuffer[s] *= Decibels::decibelsToGain(outputGain_.getNextValue());
 			}
 		}
 	}
