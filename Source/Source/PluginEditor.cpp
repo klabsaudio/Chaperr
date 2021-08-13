@@ -8,6 +8,8 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
 	setSize(700, 220);
     setResizable(false, false);
 
+    juce::LookAndFeel::setDefaultLookAndFeel(&laf_);
+
     //Knobs
     // INPUT GAIN UI SLIDER
     knobStyle(gainSlider);
@@ -77,29 +79,29 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
 
     //Attachments
     // INPUT GAIN ATTACHMENT
-    gainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, INPUT_GAIN_ID, gainSlider));
+    gainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, INPUT_GAIN_ID, gainSlider));
     // OUTPUT GAIN ATTACHMENT
-    waveshaperAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, OUTPUT_GAIN_ID, waveshapeSlider));
+    waveshaperAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, OUTPUT_GAIN_ID, waveshapeSlider));
     //SIN AMOUNT ATTACHMENT
-    sinAmountAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, SINAMOUNT_ID, sinAmountSlider));
+    sinAmountAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, SINAMOUNT_ID, sinAmountSlider));
     //TANH MULTIPLIER ATTACHMENT
-    tanhMultAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, TANHMULT_ID, tanhMultSlider));
+    tanhMultAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, TANHMULT_ID, tanhMultSlider));
     //SINFREQ ATTACHMENT
-    sinFreqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, SINFREQ_ID, sinFreqSlider));
+    sinFreqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, SINFREQ_ID, sinFreqSlider));
     // LOWPASS ATTACHMENTS
-    lpcutoffAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, LPCUTOFF_ID, lowPassCutoffSlider));
-    lpresonanceAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, LPRESO_ID, lowPassResoSlider));
+    lpcutoffAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, LPCUTOFF_ID, lowPassCutoffSlider));
+    lpresonanceAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, LPRESO_ID, lowPassResoSlider));
     // PEAK ATTACHMENTS
-    peakFrqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKCUTOFF_ID, peakFreqSlider));
-    peakResoAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKRESO_ID, peakResoSlider));
-    peakVolumeAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.valueTree, PEAKVOL_ID, peakVolumeSlider));
+    peakFrqAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, PEAKCUTOFF_ID, peakFreqSlider));
+    peakResoAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, PEAKRESO_ID, peakResoSlider));
+    peakVolumeAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(processor.apvts_, PEAKVOL_ID, peakVolumeSlider));
     // BYPASS BUTTONS ATTACHMENTS
-    lowPassBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, LPBYPASS_ID, lowPassButton));
-    peakBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, PEAKBYPASS_ID, peakBypass));
-    masterBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.valueTree, BYPASS_ID, masterBypassButton));
+    lowPassBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.apvts_, LPBYPASS_ID, lowPassButton));
+    peakBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.apvts_, PEAKBYPASS_ID, peakBypass));
+    masterBypassAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(processor.apvts_, BYPASS_ID, masterBypassButton));
     // CHOICEBOX ATTACHMENTS
-    waveshapeChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, WAVECHOICE_ID, waveshapeChoice));
-    filterChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.valueTree, FILTERCHOICE_ID, filterChoice));
+    waveshapeChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.apvts_, WAVECHOICE_ID, waveshapeChoice));
+    filterChoiceAttachment.reset(new AudioProcessorValueTreeState::ComboBoxAttachment(processor.apvts_, FILTERCHOICE_ID, filterChoice));
 
     // MAKE UI VISIBLE
     addAndMakeVisible(&peakBypass);
@@ -107,9 +109,14 @@ WaveshaperAudioProcessorEditor::WaveshaperAudioProcessorEditor (WaveshaperAudioP
     addAndMakeVisible(&masterBypassButton);
     addAndMakeVisible(&waveshapeChoice);
     addAndMakeVisible(&filterChoice);
+
+    back = XmlDocument::parse(BinaryData::chaperr_background_svg);
+    svg_drawable_play = Drawable::createFromSVG(*back);
 }
 
-WaveshaperAudioProcessorEditor::~WaveshaperAudioProcessorEditor() {}
+WaveshaperAudioProcessorEditor::~WaveshaperAudioProcessorEditor() {
+    juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
+}
 
 void WaveshaperAudioProcessorEditor::knobStyle(juce::Slider& knob)
 {
@@ -132,9 +139,6 @@ void WaveshaperAudioProcessorEditor::paint (Graphics& g)
 {
     g.setColour(Colours::white);
     g.setFont(15.0f);
-
-    back = XmlDocument::parse(BinaryData::chaperr_background_svg);
-    std::unique_ptr<Drawable> svg_drawable_play = Drawable::createFromSVG(*back);
 
     svg_drawable_play->setTransformToFit(Rectangle<float>(0, 0, 700, 220), RectanglePlacement::stretchToFit);
     svg_drawable_play->draw(g, 1.0f); 

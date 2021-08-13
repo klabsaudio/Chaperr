@@ -12,22 +12,22 @@ WaveshaperAudioProcessor::WaveshaperAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        ),
-	valueTree(*this, nullptr, "Parameters", createParameterLayout()),
-	mf_(valueTree, getNumInputChannels()), lpf_(valueTree, getNumInputChannels()),
-	wsp_(valueTree)
+	apvts_(*this, nullptr, "Parameters", createParameterLayout()),
+	mf_(apvts_, getNumInputChannels()), lpf_(apvts_, getNumInputChannels()),
+	wsp_(apvts_)
 #endif
 {
-	valueTree.addParameterListener(BYPASS_ID, this);
-	valueTree.addParameterListener(INPUT_GAIN_ID, this);
-	valueTree.addParameterListener(OUTPUT_GAIN_ID, this);
-	valueTree.addParameterListener(LPBYPASS_ID, this);
-	valueTree.addParameterListener(PEAKBYPASS_ID, this);
+	apvts_.addParameterListener(BYPASS_ID, this);
+	apvts_.addParameterListener(INPUT_GAIN_ID, this);
+	apvts_.addParameterListener(OUTPUT_GAIN_ID, this);
+	apvts_.addParameterListener(LPBYPASS_ID, this);
+	apvts_.addParameterListener(PEAKBYPASS_ID, this);
 
-	masterBypass_ = *valueTree.getRawParameterValue(BYPASS_ID);
-	inputGain_.setValue(*valueTree.getRawParameterValue(INPUT_GAIN_ID));
-	outputGain_.setValue(*valueTree.getRawParameterValue(OUTPUT_GAIN_ID));
-	lpfBypass_ = *valueTree.getRawParameterValue(LPBYPASS_ID);
-	mfBypass_ = *valueTree.getRawParameterValue(PEAKBYPASS_ID);
+	masterBypass_ = *apvts_.getRawParameterValue(BYPASS_ID);
+	inputGain_.setTargetValue(*apvts_.getRawParameterValue(INPUT_GAIN_ID));
+	outputGain_.setTargetValue(*apvts_.getRawParameterValue(OUTPUT_GAIN_ID));
+	lpfBypass_ = *apvts_.getRawParameterValue(LPBYPASS_ID);
+	mfBypass_ = *apvts_.getRawParameterValue(PEAKBYPASS_ID);
 }
 
 WaveshaperAudioProcessor::~WaveshaperAudioProcessor() {}
@@ -96,11 +96,11 @@ void WaveshaperAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
 	spec.maximumBlockSize = samplesPerBlock;
 	spec.numChannels = getTotalNumOutputChannels();
 
-	lpf_.setSampleRate(sampleRate);
-	mf_.setSampleRate(sampleRate);
+	lpf_.reset(sampleRate);
+	mf_.reset(sampleRate);
 
-	inputGain_.reset(sampleRate, 0.1f);
-	outputGain_.reset(sampleRate, 0.1f);
+	inputGain_.reset(sampleRate, 0.25f);
+	outputGain_.reset(sampleRate, 0.25f);
 }
 
 void WaveshaperAudioProcessor::parameterChanged(const String& id, float val) {
@@ -162,7 +162,7 @@ void WaveshaperAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuff
 				chanBuffer[s] = wsp_.Process(chanBuffer[s]);
 
 				if(!lpfBypass_)
-					chanBuffer[s] = lpf_[chan]->processSingleSampleRaw(chanBuffer[s]);
+					chanBuffer[s] = lpf_.Process(chan, chanBuffer[s]);
 				if(!mfBypass_)
 					chanBuffer[s] = mf_[chan]->processSingleSampleRaw(chanBuffer[s]);
 
@@ -183,7 +183,7 @@ AudioProcessorEditor* WaveshaperAudioProcessor::createEditor() {
 
 //==============================================================================
 void WaveshaperAudioProcessor::getStateInformation(MemoryBlock& destData) {
-	auto state = valueTree.copyState();
+	auto state = apvts_.copyState();
 	std::unique_ptr<juce::XmlElement> xml(state.createXml());
 	copyXmlToBinary(*xml, destData);
 }
@@ -192,8 +192,8 @@ void WaveshaperAudioProcessor::setStateInformation(const void* data, int sizeInB
 	std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
 	if (xmlState.get() != nullptr)
-		if (xmlState->hasTagName(valueTree.state.getType()))
-			valueTree.replaceState(juce::ValueTree::fromXml(*xmlState));
+		if (xmlState->hasTagName(apvts_.state.getType()))
+			apvts_.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter() {

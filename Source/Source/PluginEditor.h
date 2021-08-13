@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "LookAndFeel.h"
 
 class WaveshaperAudioProcessorEditor  : public AudioProcessorEditor
 {
@@ -28,7 +29,6 @@ public:
     Slider sinFreqSlider;
 
 private:
-    
     WaveshaperAudioProcessor& processor;
     int yAxis = 0;
     
@@ -46,6 +46,10 @@ private:
     
     ComboBox waveshapeChoice;
     ComboBox filterChoice;
+
+    KLookAndFeel laf_;
+
+    std::unique_ptr<Drawable> svg_drawable_play;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveshaperAudioProcessorEditor)
 

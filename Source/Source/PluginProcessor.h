@@ -39,7 +39,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     double lastSampleRate;
     
-    AudioProcessorValueTreeState valueTree;
+    AudioProcessorValueTreeState apvts_;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
 private:
